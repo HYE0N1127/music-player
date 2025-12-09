@@ -1,7 +1,7 @@
 import { MusicRepository } from "../repository/music-repository.js";
 import { State } from "../util/state.js";
 
-export class MusicStore {
+class MusicStore {
   #repository;
   #state = new State({
     currentMusic: undefined,
@@ -70,3 +70,5 @@ export class MusicStore {
     return this.#state.value.currentMusic;
   }
 }
+
+export const musicStore = new MusicStore();
