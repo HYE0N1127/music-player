@@ -20,7 +20,7 @@ export class Storage {
     try {
       return JSON.parse(value);
     } catch (error) {
-      console.log(`Json parse error: ${error}`);
+      console.error(`Json parse error: ${error}`);
     }
   }
 
