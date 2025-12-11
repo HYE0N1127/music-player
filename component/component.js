@@ -21,7 +21,6 @@ export class RepaintableComponent extends Component {
 
   update(next) {
     const prev = Array.from(this.element.children) ?? [];
-    console.log(prev);
 
     next.forEach((element, index) => {
       const current = prev[index];
