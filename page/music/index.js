@@ -1,6 +1,6 @@
 import { MusicItemComponent } from "../../component/music/music-item-component.js";
 import { MusicListComponent } from "../../component/music/music-list-component.js";
-import { PlaylistPageComponent } from "../../component/playlist/playlist-page-component.js";
+import { PlayerPageComponent } from "../../component/playlist/player-page-component.js";
 
 class Main {
   constructor() {
@@ -14,7 +14,7 @@ class Main {
 
     listComponent.attachTo(mainContentRoot);
 
-    const playlistPageComponent = new PlaylistPageComponent();
+    const playlistPageComponent = new PlayerPageComponent();
     playlistPageComponent.attachTo(root);
   }
 }

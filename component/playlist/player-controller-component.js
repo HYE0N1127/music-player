@@ -1,7 +1,7 @@
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 
-export class PlaylistControllerComponent extends Component {
+export class PlayerControllerComponent extends Component {
   constructor() {
     super(`
       <div class="controller">

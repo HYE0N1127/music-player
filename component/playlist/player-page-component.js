@@ -1,7 +1,7 @@
 import { Component } from "../component.js";
-import { PlaylistControllerComponent } from "./playlist-controller-component.js";
+import { PlayerControllerComponent } from "./player-controller-component.js";
 
-export class PlaylistPageComponent extends Component {
+export class PlayerPageComponent extends Component {
   constructor() {
     super(`
       <div class="playlist">
@@ -12,7 +12,7 @@ export class PlaylistPageComponent extends Component {
   }
 
   rendering() {
-    const controller = new PlaylistControllerComponent();
+    const controller = new PlayerControllerComponent();
     controller.attachTo(this.element);
   }
 }
