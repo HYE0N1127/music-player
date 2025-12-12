@@ -8,8 +8,7 @@ export class PlayerControllerComponent extends Component {
         <audio id="controller__audio"></audio>
           <input 
           type="range" 
-          class="controller__time-slider" 
-          autoplay
+          class="controller__time-slider"
           min="0" 
           max="100" 
           value="0"
@@ -122,6 +121,8 @@ export class PlayerControllerComponent extends Component {
           const duration = audioElement.duration;
           audioTimeSlider.max = duration;
           this.#updateSliderProgress(audioTimeSlider);
+
+          this.#togglePlayPause(audioElement, controlButton);
         });
         audioElement.hasLoadedMetadataListener = true;
       }
