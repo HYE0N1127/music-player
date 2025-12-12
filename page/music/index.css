@@ -35,8 +35,19 @@ body {
   position: relative;
   flex: 1;
   padding: 20px;
-  padding-bottom: calc(var(--controller-height) + 20px);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  min-height: 0;
+}
+
+.music-list {
+  flex: 1;
   overflow-y: auto;
+  list-style: none;
+  padding-bottom: calc(var(--controller-height) + 20px);
 }
 
 .music-list[data-type="player"] {

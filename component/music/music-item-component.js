@@ -41,10 +41,8 @@ export class MusicItemComponent extends Component {
 
   #changePlaylist(music) {
     if (playlistStore.isExist(music)) {
-      console.log("remove");
       playlistStore.removeFromPlaylist(music.id);
     } else {
-      console.log("add");
       playlistStore.addToPlaylist(music);
     }
   }
