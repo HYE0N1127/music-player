@@ -6,39 +6,50 @@ export class PlayerControllerComponent extends Component {
     super(`
       <div class="controller">
         <audio id="controller__audio"></audio>
+          <input 
+          type="range" 
+          class="controller__time-slider" 
+          autoplay
+          min="0" 
+          max="100" 
+          value="0"
+        />
+
         <div class="controller__control">
-          <button class="controller__button" id="controller__backward-button">
-            <i class="fa-solid fa-backward-step"></i>
-          </button>
-          <button class="controller__button" id="controller__control-button">
-            <i class="fa-solid fa-play"></i></i>
-          </button>
-          <button class="controller__button" id="controller__forward-button">
-            <i class="fa-solid fa-forward-step"></i>
-          </button>
-        </div>
-        <div class="controller__info">
-          <div class="thumbnail"></div>
-          <div class="controller__music-info">
-            <span class="controller__music-title"></span>
-            <span class="controller__artist"></span>
+          <div class="controller__play">
+            <button class="controller__button" id="controller__backward-button">
+              <i class="fa-solid fa-backward-step"></i>
+            </button>
+            <button class="controller__button" id="controller__control-button">
+              <i class="fa-solid fa-pause"></i>
+            </button>
+            <button class="controller__button" id="controller__forward-button">
+              <i class="fa-solid fa-forward-step"></i>
+            </button>
           </div>
-        </div>
-        <div class="controller__options">
-          <div class="controller__volume">
-            <i class="fa-solid fa-volume-low"></i>
-            <input
-              class="controller__volume-slider"
-              type="range"
-              min="0"
-              max="100"
-              value="50"
-              onclick="event.stopPropagation()"
-            />
+          <div class="controller__info">
+            <div class="thumbnail"></div>
+            <div class="controller__music-info">
+              <span class="controller__music-title"></span>
+              <span class="controller__artist"></span>
+            </div>
           </div>
-          <button class="controller__button">
-            <i class="fa-solid fa-caret-up"></i>
-          </button>
+          <div class="controller__options">
+            <div class="controller__volume">
+              <i class="fa-solid fa-volume-low"></i>
+              <input
+                class="controller__volume-slider"
+                type="range"
+                min="0"
+                max="100"
+                value="50"
+                onclick="event.stopPropagation()"
+              />
+            </div>
+            <button class="controller__button">
+              <i class="fa-solid fa-caret-up"></i>
+            </button>
+          </div>
         </div>
       </div>
     `);
@@ -52,6 +63,10 @@ export class PlayerControllerComponent extends Component {
 
   rendering() {
     const music = playlistStore.currentMusicState.value;
+
+    const audioTimeSlider = this.element.querySelector(
+      ".controller__time-slider"
+    );
 
     // control buttons
     const backwardButton = this.element.querySelector(
@@ -102,6 +117,38 @@ export class PlayerControllerComponent extends Component {
 
       audioElement.src = `../../${music.source}`;
 
+      if (!audioElement.hasLoadedMetadataListener) {
+        audioElement.addEventListener("loadedmetadata", () => {
+          const duration = audioElement.duration;
+          audioTimeSlider.max = duration;
+          this.#updateSliderProgress(audioTimeSlider);
+        });
+        audioElement.hasLoadedMetadataListener = true;
+      }
+
+      if (!audioElement.hasTimeUpdateListener) {
+        audioElement.addEventListener("timeupdate", () => {
+          audioTimeSlider.value = audioElement.currentTime;
+          this.#updateSliderProgress(audioTimeSlider);
+        });
+        audioElement.hasTimeUpdateListener = true;
+      }
+
+      if (!audioTimeSlider.hasClickListener) {
+        audioTimeSlider.addEventListener("click", (event) => {
+          event.stopPropagation();
+          this.#handleProgressClick(event, audioElement, audioTimeSlider);
+        });
+        audioTimeSlider.hasClickListener = true;
+      }
+
+      audioTimeSlider.addEventListener("input", (event) => {
+        event.stopPropagation();
+        const newValue = parseFloat(event.target.value);
+        audioElement.currentTime = newValue;
+        this.#updateSliderProgress(audioTimeSlider);
+      });
+
       controlButton.onclick = (event) => {
         event.stopPropagation();
         this.#togglePlayPause(audioElement, controlButton);
@@ -138,5 +185,34 @@ export class PlayerControllerComponent extends Component {
       element.pause();
       button.innerHTML = playIcon;
     }
+  }
+
+  #updateSliderProgress(slider) {
+    const max = slider.max > 0 ? slider.max : 1;
+    const percentage = (slider.value / max) * 100;
+
+    slider.style.background = `linear-gradient(to right, 
+          var(--progress-color) 0%, 
+          var(--progress-color) ${percentage}%, 
+          rgba(255, 255, 255, 0.3) ${percentage}%, 
+          rgba(255, 255, 255, 0.3) 100%)`;
+  }
+
+  #handleProgressClick(event, audio, slider) {
+    const rect = slider.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const duration = audio.duration;
+
+    if (isNaN(duration) || duration <= 0) {
+      return;
+    }
+
+    const newTime = duration * percentage;
+
+    audio.currentTime = newTime;
+    slider.value = newTime;
+
+    this.#updateSliderProgress(slider);
   }
 }

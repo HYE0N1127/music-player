@@ -123,16 +123,66 @@ body {
   bottom: 0;
   position: absolute;
   display: flex;
-  padding-block: 10px;
-  padding-inline: 12px;
+  flex-direction: column;
   background-color: var(--controller-bg);
   height: 72px;
   width: 100%;
-  justify-content: space-between;
   z-index: 1000;
 }
 
+.controller__time-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  margin: 0;
+  width: 100%;
+  box-sizing: content-box;
+}
+
+.controller__time-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff0000;
+  cursor: pointer;
+}
+
+/* Firefox Thumb 스타일 */
+
+.controller__time-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: #ff0000;
+  cursor: pointer;
+}
+
+/* IE/Edge Thumb 스타일 */
+
+.controller__time-slider::-ms-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff0000;
+  cursor: pointer;
+}
+
 .controller__control {
+  display: flex;
+  padding-block: 10px;
+  padding-inline: 12px;
+  flex: 1;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.controller__play {
   display: flex;
   gap: 8px;
   align-items: center;
