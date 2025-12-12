@@ -1,3 +1,4 @@
+import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 
 export class MusicItemComponent extends Component {
@@ -33,10 +34,16 @@ export class MusicItemComponent extends Component {
     titleElement.textContent = music.title;
     artistElement.textContent = music.artist;
 
-    /**
-     * TODO: Click 시 플레이리스트에 담기고 currentMusic이 비어있다면 currentMusic에 할당되게 할 것.
-     * 타입을 playlist와 main으로 나눠받아 아이템 클릭 이벤트 바꾸기
-     * 타입이 playlist라면 클릭 시 재생목록에서 삭제, main이면 재생목록에 저장하는 코드 만들기
-     */
+    this.element.addEventListener("click", () => {
+      this.#changePlaylist(music);
+    });
+  }
+
+  #changePlaylist(music) {
+    if (playlistStore.isExist(music)) {
+      playlistStore.removeFromPlaylist(music);
+    } else {
+      playlistStore.addToPlaylist(music);
+    }
   }
 }

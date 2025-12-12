@@ -43,21 +43,15 @@ export class PlayerControllerComponent extends Component {
       </div>
     `);
 
-    playlistStore.currentMusicState.subscribe(this.rendering());
+    playlistStore.currentMusicState.subscribe(() => {
+      this.rendering();
+    });
 
     this.rendering();
   }
 
   rendering() {
-    // FIXME: 노래를 store에서 받아오는 방식으로 변경할 것
-    // const music = playlistStore.currentMusicState.value;
-    const music = {
-      id: 1,
-      title: "돌아오지마 (Feat. 용준형 of 비스트)",
-      artist: "Heize",
-      source: "asset/music/dont-come-back.mp3",
-      cover: "asset/cover/dont-come-back-thumbnail.jpg",
-    };
+    const music = playlistStore.currentMusicState.value;
 
     // control buttons
     const backwardButton = this.element.querySelector(
@@ -78,7 +72,20 @@ export class PlayerControllerComponent extends Component {
       ".controller__volume-slider"
     );
 
-    if (music) {
+    this.element.onclick = (event) => {
+      if (event.target.closest("button") || event.target.closest("input")) {
+        return;
+      }
+
+      const customEvent = new CustomEvent("toggle-playlist", {
+        bubbles: true,
+        composed: true,
+      });
+
+      this.element.dispatchEvent(customEvent);
+    };
+
+    if (music != null) {
       const imageElement = document.createElement("img");
       imageElement.src = `../../${music.cover}`;
       imageElement.classList.add("thumbnail__image");
@@ -95,11 +102,18 @@ export class PlayerControllerComponent extends Component {
 
       audioElement.src = `../../${music.source}`;
 
-      controlButton.onclick = () => {
+      controlButton.onclick = (event) => {
+        event.stopPropagation();
         this.#togglePlayPause(audioElement, controlButton);
       };
-      forwardButton.onclick = () => playlistStore.playNext();
-      backwardButton.onclick = () => playlistStore.playPrevious();
+      forwardButton.onclick = (event) => {
+        event.stopPropagation();
+        playlistStore.playNext();
+      };
+      backwardButton.onclick = (event) => {
+        event.stopPropagation();
+        playlistStore.playPrevious();
+      };
 
       volumeSlider.addEventListener("input", (event) => {
         const newVolume = parseFloat(event.target.value);
@@ -109,6 +123,7 @@ export class PlayerControllerComponent extends Component {
       audioElement.addEventListener("ended", () => {
         playlistStore.playNext();
       });
+    } else {
     }
   }
 

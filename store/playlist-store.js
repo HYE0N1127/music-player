@@ -4,12 +4,13 @@ import { State } from "../util/state.js";
 
 class PlaylistStore {
   #repository;
-
-  #playlistState = new State([]);
-  #currentMusicState = new State(undefined);
+  #playlistState;
+  #currentMusicState;
 
   constructor() {
     this.#repository = new PlaylistRepository();
+    this.#currentMusicState = new State(undefined);
+    this.#playlistState = new State([]);
   }
 
   get playlistState() {
@@ -24,16 +25,21 @@ class PlaylistStore {
     const currentMusic = this.#repository.getCurrentMusic();
     const currentPlaylist = this.#repository.getPlaylist();
 
-    this.#currentMusicState.value = currentMusic;
-    this.#playlistState.value = currentPlaylist;
+    this.#currentMusicState.value = currentMusic ?? undefined;
+    this.#playlistState.value = currentPlaylist ?? [];
   }
 
   addToPlaylist(music) {
+    const currentMusic = this.#currentMusicState.value;
     const current = this.#playlistState.value;
     const update = [...current, music];
 
     this.#playlistState.value = update;
     this.#repository.setPlaylist(update);
+
+    if (currentMusic == null) {
+      this.playMusic(music);
+    }
   }
 
   removeFromPlaylist(id) {
@@ -91,6 +97,20 @@ class PlaylistStore {
 
     this.#currentMusicState.value = nextMusic;
     this.#repository.setCurrentMusic(nextMusic);
+  }
+
+  isExist(music) {
+    if (!music) {
+      return;
+    }
+
+    const playlist = this.#playlistState.value;
+
+    if (playlist.length === 0) {
+      return false;
+    }
+
+    return playlist.some((item) => item.id === music.id);
   }
 }
 

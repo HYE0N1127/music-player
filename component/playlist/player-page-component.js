@@ -1,10 +1,12 @@
 import { Component } from "../component.js";
-import { PlayerControllerComponent } from "./player-controller-component.js";
+import { MusicItemComponent } from "../music/music-item-component.js";
+import { MusicListComponent } from "../music/music-list-component.js";
+import { PlayerInfoComponent } from "./player-info-component.js";
 
 export class PlayerPageComponent extends Component {
   constructor() {
     super(`
-      <div class="playlist">
+      <div class="playlist invisible">
       </div>
     `);
 
@@ -12,7 +14,10 @@ export class PlayerPageComponent extends Component {
   }
 
   rendering() {
-    const controller = new PlayerControllerComponent();
-    controller.attachTo(this.element);
+    const info = new PlayerInfoComponent();
+    info.attachTo(this.element);
+
+    const listComponent = new MusicListComponent(MusicItemComponent, "player");
+    listComponent.attachTo(this.element);
   }
 }

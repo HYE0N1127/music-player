@@ -1,28 +1,52 @@
 import { RepaintableComponent } from "../component.js";
 import { musicStore } from "../../store/music-store.js";
+import { playlistStore } from "../../store/playlist-store.js";
 
 export class MusicListComponent extends RepaintableComponent {
   #renderer;
-  #store;
+  #type;
 
-  constructor(renderer) {
+  constructor(renderer, type) {
     super(`
-        <ul class="music-list">
-        </ul>
+      <ul class="music-list" data-type="${type}">
+      </ul>
     `);
 
-    this.#store = musicStore;
     this.#renderer = renderer;
+    this.#type = type;
 
-    this.#store.state.subscribe(() => this.rendering());
-    this.#store.fetch();
+    switch (this.#type) {
+      case "main":
+        musicStore.state.subscribe(() => {
+          this.rendering();
+        });
+        musicStore.fetch();
+        break;
+      case "player":
+        playlistStore.playlistState.subscribe(() => {
+          this.rendering();
+        });
+        playlistStore.fetch();
+        break;
+    }
 
     this.rendering();
   }
 
   rendering() {
-    const list = this.#store.state.value.musics;
-    const elements = list.map((music) => new this.#renderer(music).element);
-    this.update(elements);
+    switch (this.#type) {
+      case "main": {
+        const list = musicStore.state.value.musics;
+        const elements = list.map((music) => new this.#renderer(music).element);
+        this.update(elements);
+        break;
+      }
+      case "player": {
+        const list = playlistStore.playlistState.value;
+        const elements = list.map((music) => new this.#renderer(music).element);
+        this.update(elements);
+        break;
+      }
+    }
   }
 }

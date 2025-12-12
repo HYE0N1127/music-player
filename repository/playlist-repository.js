@@ -24,7 +24,7 @@ export class PlaylistRepository {
   }
 
   getCurrentMusic() {
-    return this.#localStorage.get(STORAGE_CURRENT_MUSIC_KEY) ?? [];
+    return this.#localStorage.get(STORAGE_CURRENT_MUSIC_KEY) ?? undefined;
   }
 
   setCurrentMusic(music) {
