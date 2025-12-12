@@ -8,9 +8,9 @@ export class PlayerInfoComponent extends Component {
         <div class="thumbnail" data-type="player"></div>
         <div class="playlist__current-info">
           <span class="playlist__current-title"
-            >돌아오지마 (Feat. 용준형 of 비스트)</span
+            >노래를 선택해주세요.</span
           >
-          <span class="playlist__current-artist">Heize</span>
+          <span class="playlist__current-artist"></span>
         </div>
       </div>
     `);
@@ -20,17 +20,15 @@ export class PlayerInfoComponent extends Component {
 
   rendering() {
     const music = playlistStore.currentMusicState.value;
+    const thumbnailElement = this.element.querySelector(".thumbnail");
+    const titleElement = this.element.querySelector(".playlist__current-title");
+    const artistElement = this.element.querySelector(
+      ".playlist__current-artist"
+    );
+
+    const imageElement = document.createElement("img");
 
     if (music != null) {
-      const thumbnailElement = this.element.querySelector(".thumbnail");
-      const titleElement = this.element.querySelector(
-        ".playlist__current-title"
-      );
-      const artistElement = this.element.querySelector(
-        ".playlist__current-artist"
-      );
-
-      const imageElement = document.createElement("img");
       imageElement.src = `../../${music.cover}`;
       imageElement.classList.add("thumbnail__image");
 
@@ -42,6 +40,14 @@ export class PlayerInfoComponent extends Component {
       thumbnailElement.appendChild(imageElement);
       titleElement.textContent = music.title;
       artistElement.textContent = music.artist;
+    } else {
+      titleElement.textContent = "노래를 선택해주세요.";
+      artistElement.textContent = "";
+
+      const isExist = thumbnailElement.querySelector("img");
+      if (isExist) {
+        isExist.remove();
+      }
     }
   }
 }

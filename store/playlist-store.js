@@ -48,8 +48,21 @@ class PlaylistStore {
     const currentList = this.#playlistState.value;
     const update = currentList.filter((music) => music.id !== id);
 
-    if (id === currentMusic.id) {
-      this.playNext();
+    if (currentMusic && id === currentMusic.id) {
+      const playlistAfterRemoval = update;
+
+      if (playlistAfterRemoval.length > 0) {
+        this.playNext();
+        const isStillPlayingDeletedSong =
+          this.#currentMusicState.value &&
+          this.#currentMusicState.value.id === id;
+
+        if (isStillPlayingDeletedSong) {
+          this.playPrevious();
+        }
+      } else {
+        this.#currentMusicState.value = undefined;
+      }
     }
 
     this.#playlistState.value = update;

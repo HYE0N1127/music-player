@@ -169,9 +169,29 @@ export class PlayerControllerComponent extends Component {
       });
 
       audioElement.addEventListener("ended", () => {
+        this.#togglePlayPause(audioElement, controlButton);
         playlistStore.playNext();
       });
     } else {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.removeAttribute("src");
+      }
+
+      if (audioTimeSlider) {
+        audioTimeSlider.value = 0;
+        audioTimeSlider.max = 0;
+        this.#updateSliderProgress(audioTimeSlider);
+      }
+
+      titleElement.textContent = "";
+      artistElement.textContent = "";
+      controlButton.innerHTML = '<i class="fa-solid fa-play"></i>';
+
+      const isExist = thumbnailElement.querySelector("img");
+      if (isExist) {
+        isExist.remove();
+      }
     }
   }
 
