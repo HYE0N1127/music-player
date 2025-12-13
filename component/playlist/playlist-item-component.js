@@ -1,6 +1,6 @@
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
-import { addLongPressListener } from "../../util/listener.js";
+import { addLongPressListener } from "../../libs/listener/listener.js";
 import { currentMusicStore } from "../../store/current-music-store.js";
 
 export class PlaylistItemComponent extends Component {
