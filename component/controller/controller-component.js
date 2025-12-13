@@ -61,7 +61,6 @@ export class ControllerComponent extends Component {
   }
 
   rendering() {
-    // TODO: Audio element 추상화 해볼 것.
     const music = playlistStore.currentMusicState.value;
 
     const audioTimeSlider = this.element.querySelector(
@@ -87,11 +86,7 @@ export class ControllerComponent extends Component {
       ".controller__volume-slider"
     );
 
-    this.element.onclick = (event) => {
-      if (event.target.closest("button") || event.target.closest("input")) {
-        return;
-      }
-
+    this.element.onclick = () => {
       const customEvent = new CustomEvent("toggle-playlist", {
         bubbles: false,
         composed: true,
