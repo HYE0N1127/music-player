@@ -20,12 +20,18 @@ export class MusicListComponent extends RepaintableComponent {
         musicStore.state.subscribe(() => {
           this.rendering();
         });
+
+        this.element.addEventListener("scroll", () => {
+          this.#handleScroll();
+        });
+
         musicStore.fetch();
         break;
       case "player":
         playlistStore.playlistState.subscribe(() => {
           this.rendering();
         });
+
         playlistStore.fetch();
         break;
     }
@@ -36,7 +42,8 @@ export class MusicListComponent extends RepaintableComponent {
   rendering() {
     switch (this.#type) {
       case "main": {
-        const list = musicStore.state.value.musics;
+        const list = musicStore.state.value.music;
+        console.log(list);
         const elements = list.map((music) => new this.#renderer(music).element);
         this.update(elements);
         break;
@@ -47,6 +54,14 @@ export class MusicListComponent extends RepaintableComponent {
         this.update(elements);
         break;
       }
+    }
+  }
+
+  #handleScroll() {
+    const { scrollTop, scrollHeight, clientHeight } = this.element;
+
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+      musicStore.fetch();
     }
   }
 }

@@ -16,7 +16,7 @@ const musics = [
   {
     id: 3,
     title: "EASY (Feat. Sik-K)",
-    artist: "휘인",
+    artist: "휘인 (Whee In)",
     source: "asset/music/easy.mp3",
     cover: "asset/cover/easy-thumbnail.jpg",
   },
@@ -142,7 +142,15 @@ const musics = [
 ];
 
 export class MusicRepository {
-  getMusicList() {
-    return musics;
+  getMusicList(page, size) {
+    const start = (page - 1) * size;
+    const end = start + size;
+    const totalPage = musics.length / size;
+
+    const sliced = musics.slice(start, end);
+    return {
+      musics: sliced,
+      totalPage: totalPage,
+    };
   }
 }

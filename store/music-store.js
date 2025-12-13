@@ -1,10 +1,14 @@
 import { MusicRepository } from "../repository/music-repository.js";
 import { State } from "../util/state.js";
 
+const PAGE_SIZE = 15;
+
 class MusicStore {
   #repository;
   #state = new State({
-    musics: [],
+    totalPage: 0,
+    currentPage: 0,
+    music: [],
   });
 
   constructor() {
@@ -16,12 +20,19 @@ class MusicStore {
   }
 
   fetch() {
-    const musics = this.#repository.getMusicList();
-    const state = this.#state.value;
+    const { totalPage, currentPage, music } = this.#state.value;
+
+    if (totalPage !== 0 && currentPage >= totalPage) {
+      return;
+    }
+
+    const nextPage = currentPage + 1;
+    const update = this.#repository.getMusicList(nextPage, PAGE_SIZE);
 
     this.#state.value = {
-      ...state,
-      musics,
+      music: [...music, ...update.musics],
+      currentPage: nextPage,
+      totalPage: update.totalPage,
     };
   }
 
