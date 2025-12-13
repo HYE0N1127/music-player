@@ -1,7 +1,7 @@
 import { MusicItemComponent } from "../../component/music/music-item-component.js";
 import { MusicListComponent } from "../../component/music/music-list-component.js";
-import { PlayerControllerComponent } from "../../component/playlist/player-controller-component.js";
-import { PlayerPageComponent } from "../../component/playlist/player-page-component.js";
+import { ControllerComponent } from "../../component/controller/controller-component.js";
+import { PlayerPageComponent } from "../../component/player/player-page-component.js";
 import { playlistStore } from "../../store/playlist-store.js";
 
 class Main {
@@ -16,7 +16,7 @@ class Main {
 
     listComponent.attachTo(mainContentRoot);
 
-    const controllerComponent = new PlayerControllerComponent();
+    const controllerComponent = new ControllerComponent();
     controllerComponent.attachTo(root);
 
     const playlistPageComponent = new PlayerPageComponent();

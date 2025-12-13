@@ -10,7 +10,7 @@ export class MusicItemComponent extends Component {
           <span class="music__title"></span>
           <span class="music__artist"></span>
         </div>
-      </li>
+      </li> 
     `);
 
     this.rendering(music);
