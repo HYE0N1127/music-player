@@ -42,8 +42,27 @@ export class PlaylistItemComponent extends Component {
 
     addLongPressListener(this.element, () => {
       if (playlistStore.isExist(music)) {
-        playlistStore.removeFromPlaylist(music.id);
+        this.#playAfterRemove(music);
       }
     });
+  }
+
+  #playAfterRemove(music) {
+    let musicToPlay = undefined;
+
+    const nextMusic = playlistStore.getNext(music);
+
+    if (nextMusic != null) {
+      musicToPlay = nextMusic;
+    } else {
+      const previousMusic = playlistStore.getPrevious(music);
+
+      if (previousMusic != null) {
+        musicToPlay = previousMusic;
+      }
+    }
+
+    playlistStore.removeFromPlaylist(music.id);
+    currentMusicStore.playMusic(musicToPlay);
   }
 }
