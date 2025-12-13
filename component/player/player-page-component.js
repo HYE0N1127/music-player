@@ -1,6 +1,6 @@
 import { Component } from "../component.js";
-import { MusicItemComponent } from "../music/music-item-component.js";
-import { MusicListComponent } from "../music/music-list-component.js";
+import { PlaylistItemComponent } from "../playlist/playlist-item-component.js";
+import { PlaylistListComponent } from "../playlist/playlist-list-component.js";
 import { PlayerInfoComponent } from "./player-info-component.js";
 
 export class PlayerPageComponent extends Component {
@@ -17,7 +17,7 @@ export class PlayerPageComponent extends Component {
     const info = new PlayerInfoComponent();
     info.attachTo(this.element);
 
-    const listComponent = new MusicListComponent(MusicItemComponent, "player");
+    const listComponent = new PlaylistListComponent(PlaylistItemComponent);
     listComponent.attachTo(this.element);
   }
 }
