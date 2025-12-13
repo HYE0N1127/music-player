@@ -130,13 +130,6 @@ export class ControllerComponent extends Component {
         durationTimer.textContent = duration;
       });
 
-      audioElement.addEventListener("loadedmetadata", () => {
-        const { current, duration } = this.#updateTime(audioElement);
-
-        currentTimer.textContent = current;
-        durationTimer.textContent = duration;
-      });
-
       if (!audioElement.hasLoadedMetadataListener) {
         audioElement.addEventListener("loadedmetadata", () => {
           const duration = audioElement.duration;
