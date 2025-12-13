@@ -54,6 +54,8 @@ export class MusicItemComponent extends Component {
   }
 
   #playAfterRemove(music) {
+    const { currentMusic } = currentMusicStore.state.value;
+    const isPlayingMusic = currentMusic && currentMusic.id === music.id;
     let musicToPlay = undefined;
 
     const nextMusic = playlistStore.getNext(music);
@@ -65,10 +67,15 @@ export class MusicItemComponent extends Component {
 
       if (previousMusic != null) {
         musicToPlay = previousMusic;
+      } else {
+        musicToPlay = undefined;
       }
     }
 
     playlistStore.removeFromPlaylist(music.id);
-    currentMusicStore.playMusic(musicToPlay);
+
+    if (isPlayingMusic) {
+      currentMusicStore.playMusic(musicToPlay);
+    }
   }
 }

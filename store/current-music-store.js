@@ -24,9 +24,14 @@ class CurrentMusicStore {
   }
 
   playMusic(music) {
+    if (music == null) {
+      this.#repository.clearCurrentMusic();
+    }
+
     this.#state.value = {
       currentMusic: music,
     };
+
     this.#repository.setCurrentMusic(music);
   }
 
@@ -34,6 +39,7 @@ class CurrentMusicStore {
     this.#state.value = {
       currentMusic: undefined,
     };
+
     this.#repository.setCurrentMusic(undefined);
   }
 }
