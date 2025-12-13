@@ -15,7 +15,7 @@ export class ControllerComponent extends Component {
           value="0"
         />
 
-        <div class="controller__control">
+        <div class="controller__left">
           <div class="controller__play">
             <button class="controller__button" id="controller__backward-button">
               <i class="fa-solid fa-backward-step"></i>
@@ -26,15 +26,22 @@ export class ControllerComponent extends Component {
             <button class="controller__button" id="controller__forward-button">
               <i class="fa-solid fa-forward-step"></i>
             </button>
+
+
+            <div class="controller__playtime">
+              <span class="controller__time" id="controller__current-time">0:00</span>
+              <span class="controller__time">/</span>
+              <span class="controller__time" id="controller__duration-time">0:00</span>
+            </div>
           </div>
-          <div class="controller__info">
+          <div class="controller__center">
             <div class="thumbnail"></div>
             <div class="controller__music-info">
               <span class="controller__music-title"></span>
               <span class="controller__artist"></span>
             </div>
           </div>
-          <div class="controller__options">
+          <div class="controller__right">
             <div class="controller__volume">
               <i class="fa-solid fa-volume-low"></i>
               <input
@@ -75,6 +82,13 @@ export class ControllerComponent extends Component {
       "#controller__control-button"
     );
 
+    const currentTimer = this.element.querySelector(
+      "#controller__current-time"
+    );
+    const durationTimer = this.element.querySelector(
+      "#controller__duration-time"
+    );
+
     const thumbnailElement = this.element.querySelector(".thumbnail");
     const titleElement = this.element.querySelector(".controller__music-title");
     const artistElement = this.element.querySelector(".controller__artist");
@@ -108,6 +122,20 @@ export class ControllerComponent extends Component {
       artistElement.textContent = currentMusic.artist;
 
       audioElement.src = `../../${currentMusic.source}`;
+
+      audioElement.addEventListener("timeupdate", () => {
+        const { current, duration } = this.#updateTime(audioElement);
+
+        currentTimer.textContent = current;
+        durationTimer.textContent = duration;
+      });
+
+      audioElement.addEventListener("loadedmetadata", () => {
+        const { current, duration } = this.#updateTime(audioElement);
+
+        currentTimer.textContent = current;
+        durationTimer.textContent = duration;
+      });
 
       if (!audioElement.hasLoadedMetadataListener) {
         audioElement.addEventListener("loadedmetadata", () => {
@@ -248,5 +276,40 @@ export class ControllerComponent extends Component {
     slider.value = newTime;
 
     this.#updateSliderProgress(slider);
+  }
+
+  #updateTime(audioElement) {
+    const currentTime = audioElement.currentTime;
+    const duration = audioElement.duration;
+
+    if (isNaN(duration)) {
+      return {
+        current: "0:00",
+        duration: "0:00",
+      };
+    }
+
+    const formattedCurrentTime = this.#formatTime(currentTime);
+    const formattedDuration = this.#formatTime(duration);
+
+    return {
+      current: formattedCurrentTime,
+      duration: formattedDuration,
+    };
+  }
+
+  #formatTime(seconds) {
+    if (isNaN(seconds) || seconds < 0) {
+      return "0:00";
+    }
+    const totalSeconds = Math.floor(seconds);
+    const minutes = Math.floor(totalSeconds / 60);
+    const remainingSeconds = totalSeconds % 60;
+
+    const formattedMinutes = minutes.toString();
+
+    const formattedSeconds = String(remainingSeconds).padStart(2, "0");
+
+    return `${formattedMinutes}:${formattedSeconds}`;
   }
 }

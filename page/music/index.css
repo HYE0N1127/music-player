@@ -188,19 +188,29 @@ body {
   cursor: pointer;
 }
 
-.controller__control {
+.controller__left {
   display: flex;
   padding-block: 10px;
   padding-inline: 12px;
   flex: 1;
   width: 100%;
+  gap: 14px;
   justify-content: space-between;
+}
+
+.controller__playtime {
+  gap: 4px;
 }
 
 .controller__play {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.controller__time {
+  color: #aaaaaa;
+  font-size: 12px;
 }
 
 .controller__button {
@@ -219,7 +229,7 @@ body {
   aspect-ratio: 1/ 1;
 }
 
-.controller__info {
+.controller__center {
   display: flex;
   align-items: center;
 }
@@ -240,7 +250,7 @@ body {
   color: #ffffffb3;
 }
 
-.controller__options {
+.controller__right {
   display: flex;
   align-items: center;
   gap: 8px;
