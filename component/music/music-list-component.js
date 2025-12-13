@@ -22,7 +22,7 @@ export class MusicListComponent extends RepaintableComponent {
         });
 
         this.element.addEventListener("scroll", () => {
-          this.#handleScroll();
+          this.#fetchData();
         });
 
         musicStore.fetch();
@@ -57,7 +57,7 @@ export class MusicListComponent extends RepaintableComponent {
     }
   }
 
-  #handleScroll() {
+  #fetchData() {
     const { scrollTop, scrollHeight, clientHeight } = this.element;
 
     if (scrollTop + clientHeight >= scrollHeight - 10) {
