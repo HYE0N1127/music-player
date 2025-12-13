@@ -1,67 +1,30 @@
-import { RepaintableComponent } from "../component.js";
+import { LazyScrollingComponent } from "../component.js";
 import { musicStore } from "../../store/music-store.js";
-import { playlistStore } from "../../store/playlist-store.js";
 
-export class MusicListComponent extends RepaintableComponent {
+export class MusicListComponent extends LazyScrollingComponent {
   #renderer;
-  #type;
 
-  constructor(renderer, type) {
-    super(`
-      <ul class="music-list" data-type="${type}">
+  constructor(renderer) {
+    super(
+      `
+      <ul class="music-list">
       </ul>
-    `);
+    `,
+      musicStore.fetch.bind(musicStore)
+    );
 
     this.#renderer = renderer;
-    this.#type = type;
 
-    switch (this.#type) {
-      case "main":
-        musicStore.state.subscribe(() => {
-          this.rendering();
-        });
+    musicStore.state.subscribe(() => {
+      this.rendering();
+    });
 
-        this.element.addEventListener("scroll", () => {
-          this.#fetchData();
-        });
-
-        musicStore.fetch();
-        break;
-      case "player":
-        playlistStore.playlistState.subscribe(() => {
-          this.rendering();
-        });
-
-        playlistStore.fetch();
-        break;
-    }
-
-    this.rendering();
+    musicStore.fetch();
   }
 
   rendering() {
-    switch (this.#type) {
-      case "main": {
-        const list = musicStore.state.value.music;
-        console.log(list);
-        const elements = list.map((music) => new this.#renderer(music).element);
-        this.update(elements);
-        break;
-      }
-      case "player": {
-        const list = playlistStore.playlistState.value;
-        const elements = list.map((music) => new this.#renderer(music).element);
-        this.update(elements);
-        break;
-      }
-    }
-  }
-
-  #fetchData() {
-    const { scrollTop, scrollHeight, clientHeight } = this.element;
-
-    if (scrollTop + clientHeight >= scrollHeight - 10) {
-      musicStore.fetch();
-    }
+    const list = musicStore.state.value.music;
+    const elements = list.map((music) => new this.#renderer(music).element);
+    this.update(elements);
   }
 }

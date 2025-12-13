@@ -12,7 +12,7 @@ class Main {
   rendering() {
     const root = document.getElementById("root");
     const mainContentRoot = document.getElementById("main-root");
-    const listComponent = new MusicListComponent(MusicItemComponent, "main");
+    const listComponent = new MusicListComponent(MusicItemComponent);
 
     listComponent.attachTo(mainContentRoot);
 
