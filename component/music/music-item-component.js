@@ -1,3 +1,4 @@
+import { currentMusicStore } from "../../store/current-music-store.js";
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 
@@ -25,9 +26,9 @@ export class MusicItemComponent extends Component {
     imageElement.src = `../../${music.cover}`;
     imageElement.classList.add("thumbnail__image");
 
-    const isExist = thumbnailContainerElement.querySelector("img");
-    if (isExist) {
-      isExist.remove();
+    const isExistThumbnail = thumbnailContainerElement.querySelector("img");
+    if (isExistThumbnail) {
+      isExistThumbnail.remove();
     }
 
     thumbnailContainerElement.appendChild(imageElement);
@@ -44,6 +45,11 @@ export class MusicItemComponent extends Component {
       playlistStore.removeFromPlaylist(music.id);
     } else {
       playlistStore.addToPlaylist(music);
+
+      const { currentMusic } = currentMusicStore.state.value;
+      if (currentMusic == null) {
+        currentMusicStore.playMusic(music);
+      }
     }
   }
 }

@@ -1,6 +1,7 @@
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 import { addLongPressListener } from "../../util/listener.js";
+import { currentMusicStore } from "../../store/current-music-store.js";
 
 export class PlaylistItemComponent extends Component {
   constructor(music) {
@@ -36,7 +37,7 @@ export class PlaylistItemComponent extends Component {
     artistElement.textContent = music.artist;
 
     this.element.addEventListener("click", () => {
-      playlistStore.playMusic(music);
+      currentMusicStore.playMusic(music);
     });
 
     addLongPressListener(this.element, () => {

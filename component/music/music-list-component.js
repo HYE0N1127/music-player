@@ -23,8 +23,8 @@ export class MusicListComponent extends LazyScrollingComponent {
   }
 
   rendering() {
-    const list = musicStore.state.value.music;
-    const elements = list.map((music) => new this.#renderer(music).element);
+    const { music } = musicStore.state.value;
+    const elements = music.map((item) => new this.#renderer(item).element);
     this.update(elements);
   }
 }

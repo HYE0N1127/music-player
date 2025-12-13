@@ -13,7 +13,7 @@ export class PlaylistListComponent extends RepaintableComponent {
     );
 
     this.#renderer = renderer;
-    playlistStore.playlistState.subscribe(() => {
+    playlistStore.state.subscribe(() => {
       this.rendering();
     });
 
@@ -23,8 +23,8 @@ export class PlaylistListComponent extends RepaintableComponent {
   }
 
   rendering() {
-    const list = playlistStore.playlistState.value;
-    const elements = list.map((music) => new this.#renderer(music).element);
+    const { playlist } = playlistStore.state.value;
+    const elements = playlist.map((music) => new this.#renderer(music).element);
     this.update(elements);
   }
 }

@@ -1,3 +1,4 @@
+import { currentMusicStore } from "../../store/current-music-store.js";
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 
@@ -53,21 +54,17 @@ export class ControllerComponent extends Component {
       </div>
     `);
 
-    playlistStore.currentMusicState.subscribe(() => {
-      this.rendering();
-    });
-
-    this.rendering();
+    currentMusicStore.state.subscribe(() => this.rendering());
+    currentMusicStore.fetch();
   }
 
   rendering() {
-    const music = playlistStore.currentMusicState.value;
+    const { currentMusic } = currentMusicStore.state.value;
 
     const audioTimeSlider = this.element.querySelector(
       ".controller__time-slider"
     );
 
-    // control buttons
     const backwardButton = this.element.querySelector(
       "#controller__backward-button"
     );
@@ -95,9 +92,9 @@ export class ControllerComponent extends Component {
       this.element.dispatchEvent(customEvent);
     };
 
-    if (music != null) {
+    if (currentMusic != null) {
       const imageElement = document.createElement("img");
-      imageElement.src = `../../${music.cover}`;
+      imageElement.src = `../../${currentMusic.cover}`;
       imageElement.classList.add("thumbnail__image");
 
       const isExist = thumbnailElement.querySelector("img");
@@ -107,10 +104,10 @@ export class ControllerComponent extends Component {
 
       thumbnailElement.appendChild(imageElement);
 
-      titleElement.textContent = music.title;
-      artistElement.textContent = music.artist;
+      titleElement.textContent = currentMusic.title;
+      artistElement.textContent = currentMusic.artist;
 
-      audioElement.src = `../../${music.source}`;
+      audioElement.src = `../../${currentMusic.source}`;
 
       if (!audioElement.hasLoadedMetadataListener) {
         audioElement.addEventListener("loadedmetadata", () => {
@@ -152,11 +149,11 @@ export class ControllerComponent extends Component {
       };
       forwardButton.onclick = (event) => {
         event.stopPropagation();
-        playlistStore.playNext();
+        this.#playNext(currentMusic);
       };
       backwardButton.onclick = (event) => {
         event.stopPropagation();
-        playlistStore.playPrevious();
+        this.#playPrevious(currentMusic);
       };
 
       volumeSlider.addEventListener("input", (event) => {
@@ -166,7 +163,7 @@ export class ControllerComponent extends Component {
 
       audioElement.addEventListener("ended", () => {
         this.#togglePlayPause(audioElement, controlButton);
-        playlistStore.playNext();
+        this.#playNext(currentMusic);
       });
     } else {
       if (audioElement) {
@@ -189,6 +186,26 @@ export class ControllerComponent extends Component {
         isExist.remove();
       }
     }
+  }
+
+  #playNext(current) {
+    const next = playlistStore.getNext(current);
+
+    if (next == null) {
+      return;
+    }
+
+    currentMusicStore.playMusic(next);
+  }
+
+  #playPrevious(current) {
+    const previous = playlistStore.getPrevious(current);
+
+    if (previous == null) {
+      return;
+    }
+
+    currentMusicStore.playMusic(previous);
   }
 
   #togglePlayPause(element, button) {

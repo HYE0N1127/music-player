@@ -1,115 +1,89 @@
-// store/playlist-store.js
 import { PlaylistRepository } from "../repository/playlist-repository.js";
 import { State } from "../util/state.js";
 
 class PlaylistStore {
   #repository;
-  #playlistState;
-  #currentMusicState;
+  #state = new State({
+    playlist: [],
+  });
 
   constructor() {
     this.#repository = new PlaylistRepository();
-    this.#currentMusicState = new State(undefined);
-    this.#playlistState = new State([]);
   }
 
-  get playlistState() {
-    return this.#playlistState;
-  }
-
-  get currentMusicState() {
-    return this.#currentMusicState;
+  get state() {
+    return this.#state;
   }
 
   fetch() {
-    const currentMusic = this.#repository.getCurrentMusic();
-    const currentPlaylist = this.#repository.getPlaylist();
-
-    this.#currentMusicState.value = currentMusic ?? undefined;
-    this.#playlistState.value = currentPlaylist ?? [];
+    const cached = this.#repository.getPlaylist() ?? [];
+    this.#state.value = {
+      playlist: cached,
+    };
   }
 
   addToPlaylist(music) {
-    const currentMusic = this.#currentMusicState.value;
-    const current = this.#playlistState.value;
-    const update = [...current, music];
+    const { playlist } = this.#state.value;
+    const updatedPlaylist = [...playlist, music];
 
-    this.#playlistState.value = update;
-    this.#repository.setPlaylist(update);
-
-    if (currentMusic == null) {
-      this.playMusic(music);
-    }
+    this.#state.value = { playlist: updatedPlaylist };
+    this.#repository.setPlaylist(updatedPlaylist);
   }
 
   removeFromPlaylist(id) {
-    const currentMusic = this.#currentMusicState.value;
+    const { playlist } = this.#state.value;
+    const updated = playlist.filter((music) => music.id !== id);
 
-    const currentList = this.#playlistState.value;
-    const update = currentList.filter((music) => music.id !== id);
+    this.#state.value = { playlist: updated };
+    this.#repository.setPlaylist(updated);
+  }
 
-    if (currentMusic && id === currentMusic.id) {
-      const playlistAfterRemoval = update;
-
-      if (playlistAfterRemoval.length > 0) {
-        this.playNext();
-        const isStillPlayingDeletedSong =
-          this.#currentMusicState.value &&
-          this.#currentMusicState.value.id === id;
-
-        if (isStillPlayingDeletedSong) {
-          this.playPrevious();
-        }
-      } else {
-        this.#currentMusicState.value = undefined;
-      }
+  getPrevious(music) {
+    if (!music) {
+      return undefined;
     }
 
-    this.#playlistState.value = update;
-    this.#repository.setPlaylist(update);
-  }
+    const { playlist } = this.#state.value;
 
-  playMusic(music) {
-    this.#currentMusicState.value = music;
-    this.#repository.setCurrentMusic(music);
-  }
+    if (playlist.length === 0) {
+      return undefined;
+    }
 
-  playPrevious() {
-    const playlist = this.#playlistState.value;
-    const current = this.#currentMusicState.value;
+    const currentIndex = playlist.findIndex((item) => item.id === music.id);
 
-    if (!current || playlist.length === 0) return;
-
-    const currentIndex = playlist.findIndex((music) => music.id === current.id);
-
-    if (currentIndex === 0) {
-      return;
+    if (currentIndex <= 0) {
+      return undefined;
     }
 
     const previousIndex = currentIndex - 1;
-    const nextMusic = playlist[previousIndex];
 
-    this.#currentMusicState.value = nextMusic;
-    this.#repository.setCurrentMusic(nextMusic);
+    return playlist[previousIndex];
   }
 
-  playNext() {
-    const playlist = this.#playlistState.value;
-    const current = this.#currentMusicState.value;
-
-    if (!current || playlist.length === 0) return;
-
-    const currentIndex = playlist.findIndex((music) => music.id === current.id);
-
-    if (currentIndex + 1 === playlist.length) {
-      return;
+  getNext(music) {
+    if (!music) {
+      return undefined;
     }
 
-    const nextIndex = (currentIndex + 1) % playlist.length;
-    const nextMusic = playlist[nextIndex];
+    const { playlist } = this.#state.value;
 
-    this.#currentMusicState.value = nextMusic;
-    this.#repository.setCurrentMusic(nextMusic);
+    if (playlist.length === 0) {
+      return undefined;
+    }
+
+    const currentIndex = playlist.findIndex((item) => item.id === music.id);
+
+    if (currentIndex === -1) {
+      return undefined;
+    }
+
+    const nextIndex = currentIndex + 1;
+
+    if (nextIndex >= playlist.length) {
+      return undefined;
+    }
+
+    return playlist[nextIndex];
   }
 
   isExist(music) {
@@ -117,7 +91,7 @@ class PlaylistStore {
       return;
     }
 
-    const playlist = this.#playlistState.value;
+    const { playlist } = this.#state.value;
 
     if (playlist.length === 0) {
       return false;

@@ -1,3 +1,4 @@
+import { currentMusicStore } from "../../store/current-music-store.js";
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 
@@ -15,11 +16,12 @@ export class PlayerInfoComponent extends Component {
       </div>
     `);
 
-    playlistStore.currentMusicState.subscribe(() => this.rendering());
+    currentMusicStore.state.subscribe(() => this.rendering());
+    currentMusicStore.fetch();
   }
 
   rendering() {
-    const music = playlistStore.currentMusicState.value;
+    const { currentMusic } = currentMusicStore.state.value;
     const thumbnailElement = this.element.querySelector(".thumbnail");
     const titleElement = this.element.querySelector(".playlist__current-title");
     const artistElement = this.element.querySelector(
@@ -28,8 +30,8 @@ export class PlayerInfoComponent extends Component {
 
     const imageElement = document.createElement("img");
 
-    if (music != null) {
-      imageElement.src = `../../${music.cover}`;
+    if (currentMusic != null) {
+      imageElement.src = `../../${currentMusic.cover}`;
       imageElement.classList.add("thumbnail__image");
 
       const isExist = thumbnailElement.querySelector("img");
@@ -38,8 +40,8 @@ export class PlayerInfoComponent extends Component {
       }
 
       thumbnailElement.appendChild(imageElement);
-      titleElement.textContent = music.title;
-      artistElement.textContent = music.artist;
+      titleElement.textContent = currentMusic.title;
+      artistElement.textContent = currentMusic.artist;
     } else {
       titleElement.textContent = "노래를 선택해주세요.";
       artistElement.textContent = "";
