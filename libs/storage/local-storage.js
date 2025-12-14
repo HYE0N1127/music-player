@@ -1,8 +1,3 @@
-/**
- * @description key: localStorage에 사용될 Key 값, value: Key 값과 매칭될 객체
- * 저장 될 아이템들: 플레이리스트, 현재 재생중인 노래
- */
-
 export class Storage {
   set(key, value) {
     if (typeof value !== "object") {

@@ -1,4 +1,3 @@
-import { currentMusicStore } from "../../store/current-music-store.js";
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 
@@ -16,12 +15,12 @@ export class PlayerInfoComponent extends Component {
       </div>
     `);
 
-    currentMusicStore.state.subscribe(() => this.rendering());
-    currentMusicStore.fetch();
+    playlistStore.currentMusicState.subscribe(() => this.rendering());
+    playlistStore.fetch();
   }
 
   rendering() {
-    const { currentMusic } = currentMusicStore.state.value;
+    const currentMusic = playlistStore.currentMusicState.value;
     const thumbnailElement = this.element.querySelector(".thumbnail");
     const titleElement = this.element.querySelector(".playlist__current-title");
     const artistElement = this.element.querySelector(

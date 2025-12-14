@@ -1,4 +1,3 @@
-import { currentMusicStore } from "../../store/current-music-store.js";
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 
@@ -61,12 +60,13 @@ export class ControllerComponent extends Component {
       </div>
     `);
 
-    currentMusicStore.state.subscribe(() => this.rendering());
-    currentMusicStore.fetch();
+    playlistStore.currentMusicState.subscribe(() => this.rendering());
+    playlistStore.fetch();
   }
 
+  // audio Element만 넣어주면 실행이 가능한 클래스로 audio를 분리해보기
   rendering() {
-    const { currentMusic } = currentMusicStore.state.value;
+    const currentMusic = playlistStore.currentMusicState.value;
 
     const audioTimeSlider = this.element.querySelector(
       ".controller__time-slider"
@@ -170,11 +170,11 @@ export class ControllerComponent extends Component {
       };
       forwardButton.onclick = (event) => {
         event.stopPropagation();
-        this.#playNext(currentMusic);
+        playlistStore.playNext();
       };
       backwardButton.onclick = (event) => {
         event.stopPropagation();
-        this.#playPrevious(currentMusic);
+        playlistStore.playPrevious();
       };
 
       volumeSlider.addEventListener("input", (event) => {
@@ -184,7 +184,7 @@ export class ControllerComponent extends Component {
 
       audioElement.addEventListener("ended", () => {
         this.#togglePlayPause(audioElement, controlButton);
-        this.#playNext(currentMusic);
+        playlistStore.playNext();
       });
     } else {
       if (audioElement) {
@@ -209,26 +209,7 @@ export class ControllerComponent extends Component {
     }
   }
 
-  #playNext(current) {
-    const next = playlistStore.getNext(current);
-
-    if (next == null) {
-      return;
-    }
-
-    currentMusicStore.playMusic(next);
-  }
-
-  #playPrevious(current) {
-    const previous = playlistStore.getPrevious(current);
-
-    if (previous == null) {
-      return;
-    }
-
-    currentMusicStore.playMusic(previous);
-  }
-
+  // TODO: 비즈니스로직과 컴포넌트가 결합이 되어있는 상황이기에, 이를 최대한 분리하는게 좋음.
   #togglePlayPause(element, button) {
     const pauseIcon = '<i class="fa-solid fa-pause"></i>';
     const playIcon = '<i class="fa-solid fa-play"></i>';

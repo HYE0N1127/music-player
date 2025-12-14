@@ -135,7 +135,7 @@ const musics = [
   {
     id: 20,
     title: "Where Our Blue Is",
-    artist: "Tatsuya Kitani",
+    artist: "Tatsuya Kitan",
     source: "asset/music/where-our-blue-is.mp3",
     cover: "asset/cover/where-our-blue-is-thumbnail.jpg",
   },

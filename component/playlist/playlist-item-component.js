@@ -1,7 +1,6 @@
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 import { addLongPressListener } from "../../libs/listener/listener.js";
-import { currentMusicStore } from "../../store/current-music-store.js";
 
 export class PlaylistItemComponent extends Component {
   constructor(music) {
@@ -37,39 +36,13 @@ export class PlaylistItemComponent extends Component {
     artistElement.textContent = music.artist;
 
     this.element.addEventListener("click", () => {
-      currentMusicStore.playMusic(music);
+      playlistStore.playMusic(music);
     });
 
     addLongPressListener(this.element, () => {
       if (playlistStore.isExist(music)) {
-        this.#playAfterRemove(music);
+        playlistStore.removeFromPlaylist(music.id);
       }
     });
-  }
-
-  #playAfterRemove(music) {
-    const { currentMusic } = currentMusicStore.state.value;
-    const isPlayingMusic = currentMusic && currentMusic.id === music.id;
-    let musicToPlay = undefined;
-
-    const nextMusic = playlistStore.getNext(music);
-
-    if (nextMusic != null) {
-      musicToPlay = nextMusic;
-    } else {
-      const previousMusic = playlistStore.getPrevious(music);
-
-      if (previousMusic != null) {
-        musicToPlay = previousMusic;
-      } else {
-        musicToPlay = undefined;
-      }
-    }
-
-    playlistStore.removeFromPlaylist(music.id);
-
-    if (isPlayingMusic) {
-      currentMusicStore.playMusic(musicToPlay);
-    }
   }
 }

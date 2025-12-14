@@ -1,4 +1,3 @@
-import { currentMusicStore } from "../../store/current-music-store.js";
 import { playlistStore } from "../../store/playlist-store.js";
 import { Component } from "../component.js";
 
@@ -36,46 +35,15 @@ export class MusicItemComponent extends Component {
     artistElement.textContent = music.artist;
 
     this.element.addEventListener("click", () => {
-      this.#changePlaylist(music);
+      this.#addOrRemove(music);
     });
   }
 
-  #changePlaylist(music) {
+  #addOrRemove(music) {
     if (playlistStore.isExist(music)) {
-      this.#playAfterRemove(music);
+      playlistStore.removeFromPlaylist(music);
     } else {
       playlistStore.addToPlaylist(music);
-
-      const { currentMusic } = currentMusicStore.state.value;
-      if (currentMusic == null) {
-        currentMusicStore.playMusic(music);
-      }
-    }
-  }
-
-  #playAfterRemove(music) {
-    const { currentMusic } = currentMusicStore.state.value;
-    const isPlayingMusic = currentMusic && currentMusic.id === music.id;
-    let musicToPlay = undefined;
-
-    const nextMusic = playlistStore.getNext(music);
-
-    if (nextMusic != null) {
-      musicToPlay = nextMusic;
-    } else {
-      const previousMusic = playlistStore.getPrevious(music);
-
-      if (previousMusic != null) {
-        musicToPlay = previousMusic;
-      } else {
-        musicToPlay = undefined;
-      }
-    }
-
-    playlistStore.removeFromPlaylist(music.id);
-
-    if (isPlayingMusic) {
-      currentMusicStore.playMusic(musicToPlay);
     }
   }
 }
