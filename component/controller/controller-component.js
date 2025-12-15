@@ -115,8 +115,6 @@ export class ControllerComponent extends Component {
 
       audioElement.src = `../../${currentMusic.source}`;
 
-      // 여기서부터 삭제가 가능하다면 삭제
-
       const audio = new Audio(audioElement);
       const volumeSlider = new Slider(volumeSliderElement);
       const timeline = new Slider(timelineSliderElement);

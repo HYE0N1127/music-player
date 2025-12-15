@@ -52,8 +52,6 @@ export class RepaintableComponent extends Component {
   }
 }
 
-// TODO: 만약 PAGE_SIZE가 5라면 크기가 작기에 스크롤이 될 수 없어 무한 스크롤이 처음부터 동작하지 않음. IntersectionObserver를 통해서 구현해볼 것
-// Repaintable 상속 없이 Component를 상속해서 구현해보기
 export class LazyScrollingComponent extends RepaintableComponent {
   #callback;
 
@@ -73,5 +71,52 @@ export class LazyScrollingComponent extends RepaintableComponent {
         this.#callback();
       }
     }
+  }
+}
+
+export class InfiniteScrollComponent extends Component {
+  #observer;
+  #sentinel;
+
+  constructor(callback) {
+    super(`
+      <div class="intersection"></div>  
+    `);
+
+    this.#sentinel = document.createElement("div");
+    this.#sentinel.className = "sentinel";
+    this.#sentinel.style.height = "40px";
+    this.element.appendChild(this.#sentinel);
+
+    this.#observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            console.log(entry.isIntersecting);
+            callback();
+
+            if (this.element.scrollHeight <= this.element.clientHeight) {
+              callback();
+            }
+          }
+        });
+      },
+      {
+        root: this.element,
+        threshold: 0.1,
+      }
+    );
+
+    this.#observer.observe(this.#sentinel);
+  }
+
+  update(items) {
+    console.log(this.element.scrollHeight, this.element.clientHeight);
+    const previous = this.element.children.length - 1;
+    const slice = items.slice(previous);
+
+    slice.forEach((item) => {
+      this.element.insertBefore(item, this.#sentinel);
+    });
   }
 }

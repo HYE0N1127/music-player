@@ -1,17 +1,11 @@
-import { LazyScrollingComponent } from "../component.js";
+import { InfiniteScrollComponent } from "../component.js";
 import { musicStore } from "../../store/music-store.js";
 
-export class MusicListComponent extends LazyScrollingComponent {
+export class MusicListComponent extends InfiniteScrollComponent {
   #renderer;
 
   constructor(renderer) {
-    super(
-      `
-      <ul class="music-list">
-      </ul>
-    `,
-      musicStore.fetch.bind(musicStore)
-    );
+    super(musicStore.fetch.bind(musicStore));
 
     this.#renderer = renderer;
 
@@ -24,6 +18,7 @@ export class MusicListComponent extends LazyScrollingComponent {
 
   rendering() {
     const { music } = musicStore.state.value;
+    console.log(`callback called, ${music.length}`);
     const elements = music.map((item) => new this.#renderer(item).element);
     this.update(elements);
   }

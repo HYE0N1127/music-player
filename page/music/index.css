@@ -38,7 +38,6 @@ body {
 
 .main {
   position: relative;
-  flex: 1;
   padding: 20px;
 
   display: flex;
@@ -46,6 +45,11 @@ body {
 
   overflow: hidden;
   min-height: 0;
+  height: calc(100% - var(--controller-height));
+}
+
+.intersection {
+  overflow-y: auto;
 }
 
 .music-list {

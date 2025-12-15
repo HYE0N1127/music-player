@@ -1,7 +1,7 @@
 import { MusicRepository } from "../repository/music-repository.js";
 import { State } from "../util/state.js";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 5;
 
 class MusicStore {
   #repository;
