@@ -100,11 +100,11 @@ class PlaylistStore {
 
     const currentIndex = playlist.findIndex((music) => music.id === current.id);
 
-    if (currentIndex + 1 === playlist.length) {
+    if (currentIndex === playlist.length - 1) {
       return;
     }
+    const nextIndex = currentIndex + 1;
 
-    const nextIndex = (currentIndex + 1) % playlist.length;
     const nextMusic = playlist[nextIndex];
 
     this.#currentMusicState.value = nextMusic;

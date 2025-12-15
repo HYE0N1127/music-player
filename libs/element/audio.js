@@ -1,15 +1,38 @@
-class Audio {
-  constructor(audioElement) {}
+import { playlistStore } from "../../store/playlist-store.js";
+import { Volume } from "./audio/volume.js";
+import { Player } from "./audio/player.js";
+import { Timer } from "./audio/timer.js";
 
-  getCurrentTime() {}
+export class Audio {
+  #element;
 
-  getDurationTime() {}
+  #player;
+  #volume;
+  #timer;
 
-  play() {
-    // Callback을 받아서 함수가 호출되고 나서 원하는 동작을 실행할 수 잇도록 하기
+  constructor(audioElement) {
+    this.#element = audioElement;
+
+    this.#player = new Player(this.#element);
+    this.#volume = new Volume(this.#element);
+    this.#timer = new Timer(this.#element);
   }
 
-  playNext() {}
+  get volume() {
+    return this.#volume;
+  }
 
-  playPrevious() {}
+  get player() {
+    return this.#player;
+  }
+
+  get timer() {
+    return this.#timer;
+  }
+
+  resume() {
+    this.#element.onended = () => {
+      playlistStore.playNext();
+    };
+  }
 }

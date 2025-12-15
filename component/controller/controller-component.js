@@ -1,4 +1,7 @@
+import { Audio } from "../../libs/element/audio.js";
+import { Slider } from "../../libs/element/slider.js";
 import { playlistStore } from "../../store/playlist-store.js";
+import { formatTime } from "../../util/time.js";
 import { Component } from "../component.js";
 
 export class ControllerComponent extends Component {
@@ -6,7 +9,7 @@ export class ControllerComponent extends Component {
     super(`
       <div class="controller">
         <audio id="controller__audio"></audio>
-          <input 
+        <input
           type="range" 
           class="controller__time-slider"
           min="0" 
@@ -64,11 +67,10 @@ export class ControllerComponent extends Component {
     playlistStore.fetch();
   }
 
-  // audio Element만 넣어주면 실행이 가능한 클래스로 audio를 분리해보기
   rendering() {
     const currentMusic = playlistStore.currentMusicState.value;
 
-    const audioTimeSlider = this.element.querySelector(
+    const timelineSliderElement = this.element.querySelector(
       ".controller__time-slider"
     );
 
@@ -82,10 +84,10 @@ export class ControllerComponent extends Component {
       "#controller__control-button"
     );
 
-    const currentTimer = this.element.querySelector(
+    const currentTimerElement = this.element.querySelector(
       "#controller__current-time"
     );
-    const durationTimer = this.element.querySelector(
+    const durationTimerElement = this.element.querySelector(
       "#controller__duration-time"
     );
 
@@ -93,7 +95,7 @@ export class ControllerComponent extends Component {
     const titleElement = this.element.querySelector(".controller__music-title");
     const artistElement = this.element.querySelector(".controller__artist");
     const audioElement = this.element.querySelector("#controller__audio");
-    const volumeSlider = this.element.querySelector(
+    const volumeSliderElement = this.element.querySelector(
       ".controller__volume-slider"
     );
 
@@ -107,119 +109,90 @@ export class ControllerComponent extends Component {
     };
 
     if (currentMusic != null) {
-      const imageElement = document.createElement("img");
-      imageElement.src = `../../${currentMusic.cover}`;
-      imageElement.classList.add("thumbnail__image");
-
-      const isExist = thumbnailElement.querySelector("img");
-      if (isExist) {
-        isExist.remove();
-      }
-
-      thumbnailElement.appendChild(imageElement);
-
+      this.#setThumbnail("append", thumbnailElement, currentMusic.cover);
       titleElement.textContent = currentMusic.title;
       artistElement.textContent = currentMusic.artist;
 
       audioElement.src = `../../${currentMusic.source}`;
 
-      audioElement.addEventListener("timeupdate", () => {
-        const { current, duration } = this.#updateTime(audioElement);
+      // 여기서부터 삭제가 가능하다면 삭제
 
-        currentTimer.textContent = current;
-        durationTimer.textContent = duration;
+      const audio = new Audio(audioElement);
+      const volumeSlider = new Slider(volumeSliderElement);
+      const timeline = new Slider(timelineSliderElement);
+
+      audio.timer.subscribeCurrentTime((currentTime) => {
+        currentTimerElement.textContent = formatTime(currentTime);
+
+        timelineSliderElement.value = audioElement.currentTime;
+        this.#updateSliderProgress(timelineSliderElement);
       });
 
-      if (!audioElement.hasLoadedMetadataListener) {
-        audioElement.addEventListener("loadedmetadata", () => {
-          const duration = audioElement.duration;
-          audioTimeSlider.max = duration;
-          this.#updateSliderProgress(audioTimeSlider);
+      audio.timer.subscribeDurationTime((duration) => {
+        audio.player.play();
+        durationTimerElement.textContent = formatTime(duration);
 
-          this.#togglePlayPause(audioElement, controlButton);
-        });
-        audioElement.hasLoadedMetadataListener = true;
-      }
+        timelineSliderElement.max = duration;
+        this.#updateSliderProgress(timelineSliderElement);
+      });
 
-      if (!audioElement.hasTimeUpdateListener) {
-        audioElement.addEventListener("timeupdate", () => {
-          audioTimeSlider.value = audioElement.currentTime;
-          this.#updateSliderProgress(audioTimeSlider);
-        });
-        audioElement.hasTimeUpdateListener = true;
-      }
+      audio.player.subscribeIsPlaying((isPlaying) => {
+        const pauseIcon = '<i class="fa-solid fa-pause"></i>';
+        const playIcon = '<i class="fa-solid fa-play"></i>';
 
-      if (!audioTimeSlider.hasClickListener) {
-        audioTimeSlider.addEventListener("click", (event) => {
-          event.stopPropagation();
-          this.#handleProgressClick(event, audioElement, audioTimeSlider);
-        });
-        audioTimeSlider.hasClickListener = true;
-      }
+        if (isPlaying) {
+          controlButton.innerHTML = pauseIcon;
+        } else {
+          controlButton.innerHTML = playIcon;
+        }
+      });
 
-      audioTimeSlider.addEventListener("input", (event) => {
-        event.stopPropagation();
-        const newValue = parseFloat(event.target.value);
-        audioElement.currentTime = newValue;
-        this.#updateSliderProgress(audioTimeSlider);
+      volumeSlider.subscribeInput((event) => {
+        const update = parseFloat(event.target.value) / 100;
+        audio.volume.volume = update;
+      });
+
+      timeline.subscribeClick((event) => {
+        this.#handleProgressClick(event, audioElement, timelineSliderElement);
       });
 
       controlButton.onclick = (event) => {
         event.stopPropagation();
-        this.#togglePlayPause(audioElement, controlButton);
+        if (audio.player.isPlaying) {
+          audio.player.pause();
+        } else {
+          audio.player.play();
+        }
       };
+
       forwardButton.onclick = (event) => {
         event.stopPropagation();
-        playlistStore.playNext();
+        audio.player.playNext();
       };
+
       backwardButton.onclick = (event) => {
         event.stopPropagation();
-        playlistStore.playPrevious();
+        audio.player.playPrevious();
       };
 
-      volumeSlider.addEventListener("input", (event) => {
-        const newVolume = parseFloat(event.target.value);
-        audioElement.volume = newVolume / 100;
-      });
-
-      audioElement.addEventListener("ended", () => {
-        this.#togglePlayPause(audioElement, controlButton);
-        playlistStore.playNext();
-      });
+      audio.resume();
     } else {
       if (audioElement) {
         audioElement.pause();
         audioElement.removeAttribute("src");
       }
 
-      if (audioTimeSlider) {
-        audioTimeSlider.value = 0;
-        audioTimeSlider.max = 0;
-        this.#updateSliderProgress(audioTimeSlider);
+      if (timelineSliderElement) {
+        timelineSliderElement.value = 0;
+        timelineSliderElement.max = 0;
+        this.#updateSliderProgress(timelineSliderElement);
       }
 
       titleElement.textContent = "";
       artistElement.textContent = "";
       controlButton.innerHTML = '<i class="fa-solid fa-play"></i>';
 
-      const isExist = thumbnailElement.querySelector("img");
-      if (isExist) {
-        isExist.remove();
-      }
-    }
-  }
-
-  // TODO: 비즈니스로직과 컴포넌트가 결합이 되어있는 상황이기에, 이를 최대한 분리하는게 좋음.
-  #togglePlayPause(element, button) {
-    const pauseIcon = '<i class="fa-solid fa-pause"></i>';
-    const playIcon = '<i class="fa-solid fa-play"></i>';
-
-    if (element.paused) {
-      element.play();
-      button.innerHTML = pauseIcon;
-    } else {
-      element.pause();
-      button.innerHTML = playIcon;
+      this.#setThumbnail("remove", thumbnailElement, null);
     }
   }
 
@@ -252,38 +225,29 @@ export class ControllerComponent extends Component {
     this.#updateSliderProgress(slider);
   }
 
-  #updateTime(audioElement) {
-    const currentTime = audioElement.currentTime;
-    const duration = audioElement.duration;
+  #setThumbnail(type, element, src) {
+    switch (type) {
+      case "remove": {
+        const isExist = element.querySelector("img");
+        if (isExist) {
+          isExist.remove();
+        }
+        break;
+      }
 
-    if (isNaN(duration)) {
-      return {
-        current: "0:00",
-        duration: "0:00",
-      };
+      case "append": {
+        const imageElement = document.createElement("img");
+        imageElement.src = `../../${src}`;
+        imageElement.classList.add("thumbnail__image");
+
+        const isExist = element.querySelector("img");
+        if (isExist) {
+          isExist.remove();
+        }
+
+        element.appendChild(imageElement);
+        break;
+      }
     }
-
-    const formattedCurrentTime = this.#formatTime(currentTime);
-    const formattedDuration = this.#formatTime(duration);
-
-    return {
-      current: formattedCurrentTime,
-      duration: formattedDuration,
-    };
-  }
-
-  #formatTime(seconds) {
-    if (isNaN(seconds) || seconds < 0) {
-      return "0:00";
-    }
-    const totalSeconds = Math.floor(seconds);
-    const minutes = Math.floor(totalSeconds / 60);
-    const remainingSeconds = totalSeconds % 60;
-
-    const formattedMinutes = minutes.toString();
-
-    const formattedSeconds = String(remainingSeconds).padStart(2, "0");
-
-    return `${formattedMinutes}:${formattedSeconds}`;
   }
 }
