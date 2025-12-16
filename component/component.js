@@ -14,63 +14,44 @@ export class Component {
   }
 }
 
-// TODO: 중간 아이템이 지워진다면 지운 아이템의 뒷부분은 전부 재렌더링이 되는 현상이 있기에 고쳐볼것
 export class RepaintableComponent extends Component {
   constructor(htmlString) {
     super(htmlString);
   }
 
   update(next) {
-    const prev = Array.from(this.element.children) ?? [];
+    const prev = new Map();
 
-    next.forEach((element, index) => {
-      const current = prev[index];
-      const isChange = this.#isChange(current, element);
+    Array.from(this.element.children).forEach((child) => {
+      if (child.dataset.id) {
+        prev.set(child.dataset.id, child);
+      }
+    });
 
-      if (isChange) {
-        if (current) {
-          this.element.replaceChild(element, current);
-        } else {
-          this.element.appendChild(element);
+    next.forEach((item, index) => {
+      const id = item.dataset.id;
+      const exist = prev.get(id);
+
+      const nodeAtCurrentIndex = this.element.children[index];
+
+      if (exist) {
+        prev.delete(id);
+
+        if (nodeAtCurrentIndex !== exist) {
+          this.element.insertBefore(exist, nodeAtCurrentIndex);
         }
+
+        if (item !== exist) {
+          this.element.replaceChild(item, exist);
+        }
+      } else {
+        this.element.insertBefore(item, nodeAtCurrentIndex);
       }
     });
 
-    while (this.element.children.length > next.length) {
-      this.element.lastElementChild.remove();
-    }
-  }
-
-  #isChange(prev, next) {
-    if (prev == null) {
-      return true;
-    }
-    const prevId = prev.dataset.id;
-    const nextId = next.dataset.id;
-
-    return prevId !== nextId;
-  }
-}
-
-export class LazyScrollingComponent extends RepaintableComponent {
-  #callback;
-
-  constructor(htmlString, callback) {
-    super(htmlString);
-    this.#callback = callback;
-    this.element.addEventListener("scroll", () => {
-      this.#reachedBottom();
+    prev.forEach((element) => {
+      element.remove();
     });
-  }
-
-  #reachedBottom() {
-    const { scrollTop, scrollHeight, clientHeight } = this.element;
-
-    if (scrollTop + clientHeight >= scrollHeight - 10) {
-      if (this.#callback) {
-        this.#callback();
-      }
-    }
   }
 }
 
@@ -85,14 +66,13 @@ export class InfiniteScrollComponent extends Component {
 
     this.#sentinel = document.createElement("div");
     this.#sentinel.className = "sentinel";
-    this.#sentinel.style.height = "40px";
+    this.#sentinel.style.height = "1px";
     this.element.appendChild(this.#sentinel);
 
     this.#observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            console.log(entry.isIntersecting);
             callback();
 
             if (this.element.scrollHeight <= this.element.clientHeight) {
@@ -111,11 +91,10 @@ export class InfiniteScrollComponent extends Component {
   }
 
   update(items) {
-    console.log(this.element.scrollHeight, this.element.clientHeight);
     const previous = this.element.children.length - 1;
     const slice = items.slice(previous);
 
-    slice.forEach((item) => {
+    items.forEach((item) => {
       this.element.insertBefore(item, this.#sentinel);
     });
   }

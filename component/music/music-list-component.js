@@ -18,7 +18,6 @@ export class MusicListComponent extends InfiniteScrollComponent {
 
   rendering() {
     const { music } = musicStore.state.value;
-    console.log(`callback called, ${music.length}`);
     const elements = music.map((item) => new this.#renderer(item).element);
     this.update(elements);
   }

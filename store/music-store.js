@@ -20,7 +20,7 @@ class MusicStore {
   }
 
   fetch() {
-    const { totalPage, currentPage, music } = this.#state.value;
+    const { totalPage, currentPage } = this.#state.value;
 
     if (totalPage !== 0 && currentPage >= totalPage) {
       return;
@@ -30,7 +30,7 @@ class MusicStore {
     const update = this.#repository.getMusicList(nextPage, PAGE_SIZE);
 
     this.#state.value = {
-      music: [...music, ...update.musics],
+      music: update.musics,
       currentPage: nextPage,
       totalPage: update.totalPage,
     };
