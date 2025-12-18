@@ -1,7 +1,7 @@
 import { MusicRepository } from "../repository/music-repository.js";
 import { State } from "../util/state.js";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 7;
 
 class MusicStore {
   #repository;
@@ -30,7 +30,7 @@ class MusicStore {
     const update = this.#repository.getMusicList(nextPage, PAGE_SIZE);
 
     this.#state.value = {
-      music: update.musics,
+      music: [...this.#state.value.music, ...update.musics],
       currentPage: nextPage,
       totalPage: update.totalPage,
     };

@@ -3,6 +3,8 @@ import { MusicListComponent } from "../../component/music/music-list-component.j
 import { ControllerComponent } from "../../component/controller/controller-component.js";
 import { PlayerPageComponent } from "../../component/player/player-page-component.js";
 import { playlistStore } from "../../store/playlist-store.js";
+import { IntersectionComponent } from "../../component/component.js";
+import { musicStore } from "../../store/music-store.js";
 
 class Main {
   constructor() {
@@ -12,9 +14,14 @@ class Main {
   rendering() {
     const root = document.getElementById("root");
     const mainContentRoot = document.getElementById("main-root");
+
     const listComponent = new MusicListComponent(MusicItemComponent);
+    const intersection = new IntersectionComponent(() => {
+      musicStore.fetch();
+    });
 
     listComponent.attachTo(mainContentRoot);
+    listComponent.addChildren([intersection]);
 
     const controllerComponent = new ControllerComponent();
     controllerComponent.attachTo(root);

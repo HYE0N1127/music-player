@@ -19,7 +19,7 @@ export class Storage {
     }
   }
 
-  clearItem(key) {
+  remove(key) {
     window.localStorage.removeItem(key);
   }
 }

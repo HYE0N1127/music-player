@@ -1,7 +1,5 @@
 import { Observable } from "./observable.js";
 
-// Input과 Output이 존재하지 않기에 libs가 맞음
-
 export class State extends Observable {
   #value;
 

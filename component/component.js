@@ -12,8 +12,13 @@ export class Component {
   attachTo(parent, position = "beforeend") {
     parent.insertAdjacentElement(position, this.element);
   }
+
+  addChildren(children, position = "beforeend") {
+    children.forEach((child) => child.attachTo(this.element));
+  }
 }
 
+// TODO Rendering 다시 고쳐볼것
 export class RepaintableComponent extends Component {
   constructor(htmlString) {
     super(htmlString);
@@ -42,10 +47,10 @@ export class RepaintableComponent extends Component {
         }
 
         if (item !== exist) {
-          this.element.replaceChild(item, exist);
+          this.element.replaceChild(item, nodeAtCurrentIndex);
         }
       } else {
-        this.element.insertBefore(item, nodeAtCurrentIndex);
+        this.element.insertBefore(item, exist);
       }
     });
 
@@ -55,47 +60,25 @@ export class RepaintableComponent extends Component {
   }
 }
 
-export class InfiniteScrollComponent extends Component {
-  #observer;
-  #sentinel;
-
+export class IntersectionComponent extends Component {
   constructor(callback) {
     super(`
       <div class="intersection"></div>  
     `);
 
-    this.#sentinel = document.createElement("div");
-    this.#sentinel.className = "sentinel";
-    this.#sentinel.style.height = "1px";
-    this.element.appendChild(this.#sentinel);
-
-    this.#observer = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             callback();
-
-            if (this.element.scrollHeight <= this.element.clientHeight) {
-              callback();
-            }
           }
         });
       },
       {
-        root: this.element,
-        threshold: 0.1,
+        threshold: 0,
       }
     );
 
-    this.#observer.observe(this.#sentinel);
-  }
-
-  update(items) {
-    const previous = this.element.children.length - 1;
-    const slice = items.slice(previous);
-
-    items.forEach((item) => {
-      this.element.insertBefore(item, this.#sentinel);
-    });
+    observer.observe(this.element);
   }
 }

@@ -16,7 +16,7 @@ export class PlaylistRepository {
   }
 
   clearPlaylist() {
-    this.#localStorage.clearItem(STORAGE_PLAYLIST_KEY);
+    this.#localStorage.remove(STORAGE_PLAYLIST_KEY);
   }
 
   getPlaylist() {
@@ -32,6 +32,6 @@ export class PlaylistRepository {
   }
 
   clearCurrentMusic() {
-    this.#localStorage.clearItem(STORAGE_CURRENT_MUSIC_KEY);
+    this.#localStorage.remove(STORAGE_CURRENT_MUSIC_KEY);
   }
 }

@@ -48,15 +48,10 @@ body {
   height: calc(100% - var(--controller-height));
 }
 
-.intersection {
-  overflow-y: auto;
-}
-
 .music-list {
   flex: 1;
   overflow-y: auto;
   list-style: none;
-  padding-bottom: calc(var(--controller-height) + 20px);
 }
 
 .music-list[data-type="player"] {

@@ -13,7 +13,7 @@ export class Timer {
   }
 
   subscribeDurationTime(callback) {
-    this.#element.onloadedmetadata = (event) => {
+    this.#element.ondurationchange = (event) => {
       const duration = this.#element.duration;
       callback(duration);
     };

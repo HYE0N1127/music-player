@@ -1,11 +1,13 @@
-import { InfiniteScrollComponent } from "../component.js";
+import { Component, RepaintableComponent } from "../component.js";
 import { musicStore } from "../../store/music-store.js";
 
-export class MusicListComponent extends InfiniteScrollComponent {
+export class MusicListComponent extends RepaintableComponent {
   #renderer;
 
   constructor(renderer) {
-    super(musicStore.fetch.bind(musicStore));
+    super(`
+      <div class="music-list"></div>
+    `);
 
     this.#renderer = renderer;
 
@@ -19,6 +21,7 @@ export class MusicListComponent extends InfiniteScrollComponent {
   rendering() {
     const { music } = musicStore.state.value;
     const elements = music.map((item) => new this.#renderer(item).element);
+
     this.update(elements);
   }
 }
