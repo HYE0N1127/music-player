@@ -3,9 +3,16 @@ import { playlistStore } from "../../../store/playlist-store.js";
 export class Player {
   #element;
   #isPlaying = true;
+  #isPlayingListener;
 
   constructor(audioElement) {
     this.#element = audioElement;
+    this.#isPlayingListener = new Set();
+  }
+
+  set isPlaying(value) {
+    this.#isPlaying = value;
+    this.#isPlayingListener.forEach((listener) => listener(this.#isPlaying));
   }
 
   get isPlaying() {
@@ -13,19 +20,18 @@ export class Player {
   }
 
   subscribeIsPlaying(callback) {
+    this.#isPlayingListener.add(callback);
+
     this.#element.onplaying = () => {
-      this.#isPlaying = true;
-      callback(this.#isPlaying);
+      this.isPlaying = true;
     };
 
     this.#element.onpause = () => {
-      this.#isPlaying = false;
-      callback(this.#isPlaying);
+      this.isPlaying = false;
     };
 
     this.#element.onended = () => {
-      this.#isPlaying = false;
-      callback(this.#isPlaying);
+      this.isPlaying = false;
     };
   }
 

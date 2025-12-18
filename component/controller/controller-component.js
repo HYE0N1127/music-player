@@ -1,5 +1,4 @@
 import { Audio } from "../../libs/element/audio.js";
-import { Slider } from "../../libs/element/slider.js";
 import { playlistStore } from "../../store/playlist-store.js";
 import { formatTime } from "../../util/time.js";
 import { Component } from "../component.js";
@@ -23,7 +22,7 @@ export class ControllerComponent extends Component {
               <i class="fa-solid fa-backward-step"></i>
             </button>
             <button class="controller__button" id="controller__control-button">
-              <i class="fa-solid fa-pause"></i>
+              <i class="fa-solid fa-play"></i>
             </button>
             <button class="controller__button" id="controller__forward-button">
               <i class="fa-solid fa-forward-step"></i>
@@ -116,23 +115,39 @@ export class ControllerComponent extends Component {
       audioElement.src = `../../${currentMusic.source}`;
 
       const audio = new Audio(audioElement);
-      const volumeSlider = new Slider(volumeSliderElement);
-      const timeline = new Slider(timelineSliderElement);
 
-      audio.timer.subscribeCurrentTime((currentTime) => {
+      audio.timeline.subscribeCurrentTime((currentTime) => {
+        timelineSliderElement.value = currentTime;
         currentTimerElement.textContent = formatTime(currentTime);
-
-        timelineSliderElement.value = audioElement.currentTime;
         this.#updateSliderProgress(timelineSliderElement);
       });
 
-      audio.timer.subscribeDurationTime((duration) => {
-        audio.player.play();
+      audio.timeline.subscribeDurationTime((duration) => {
         durationTimerElement.textContent = formatTime(duration);
-
         timelineSliderElement.max = duration;
-        this.#updateSliderProgress(timelineSliderElement);
       });
+
+      timelineSliderElement.onclick = (event) => {
+        event.stopPropagation();
+      };
+
+      timelineSliderElement.oninput = () => {
+        audio.timeline.startJump();
+      };
+
+      timelineSliderElement.onchange = (event) => {
+        const update = Number(event.target.value);
+
+        audio.timeline.jumpTo(update);
+        audioElement.currentTime = update;
+
+        this.#updateSliderProgress(timelineSliderElement);
+      };
+
+      volumeSliderElement.oninput = (event) => {
+        const volume = event.target.value / 100;
+        audio.volume.volume = volume;
+      };
 
       audio.player.subscribeIsPlaying((isPlaying) => {
         const pauseIcon = '<i class="fa-solid fa-pause"></i>';
@@ -143,15 +158,6 @@ export class ControllerComponent extends Component {
         } else {
           controlButton.innerHTML = playIcon;
         }
-      });
-
-      volumeSlider.subscribeInput((event) => {
-        const update = parseFloat(event.target.value) / 100;
-        audio.volume.volume = update;
-      });
-
-      timeline.subscribeClick((event) => {
-        this.#handleProgressClick(event, audioElement, timelineSliderElement);
       });
 
       controlButton.onclick = (event) => {
@@ -203,24 +209,6 @@ export class ControllerComponent extends Component {
           var(--progress-color) ${percentage}%, 
           rgba(255, 255, 255, 0.3) ${percentage}%, 
           rgba(255, 255, 255, 0.3) 100%)`;
-  }
-
-  #handleProgressClick(event, audio, slider) {
-    const rect = slider.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const duration = audio.duration;
-
-    if (isNaN(duration) || duration <= 0) {
-      return;
-    }
-
-    const newTime = duration * percentage;
-
-    audio.currentTime = newTime;
-    slider.value = newTime;
-
-    this.#updateSliderProgress(slider);
   }
 
   #setThumbnail(type, element, src) {

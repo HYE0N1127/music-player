@@ -27,11 +27,5 @@ export class PlaylistListComponent extends RepaintableComponent {
     const elements = playlist.map((music) => new this.#renderer(music).element);
 
     this.update(elements);
-
-    setTimeout(() => {
-      const [first, ...rest] = elements;
-
-      this.update([...rest, first]);
-    }, 3000);
   }
 }
