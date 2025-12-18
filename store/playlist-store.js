@@ -1,5 +1,5 @@
 import { PlaylistRepository } from "../repository/playlist-repository.js";
-import { State } from "../util/state.js";
+import { State } from "../libs/state/state.js";
 
 class PlaylistStore {
   #repository;
