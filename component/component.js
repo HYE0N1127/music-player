@@ -23,7 +23,6 @@ export class RepaintableComponent extends Component {
   constructor(htmlString) {
     super(htmlString);
   }
-
   update(next) {
     const prev = new Map();
 
@@ -37,25 +36,24 @@ export class RepaintableComponent extends Component {
       const id = item.dataset.id;
       const exist = prev.get(id);
 
-      const nodeAtCurrentIndex = this.element.children[index];
+      const current = this.element.children[index];
+
+      // 삭제 removeChild, 순서 변경 insertBefore, 추가 appendChild
 
       if (exist) {
+        if (exist !== current) {
+          console.log("update");
+          this.element.insertBefore(exist, current);
+        }
         prev.delete(id);
-
-        if (nodeAtCurrentIndex !== exist) {
-          this.element.insertBefore(exist, nodeAtCurrentIndex);
-        }
-
-        if (item !== exist) {
-          this.element.replaceChild(item, nodeAtCurrentIndex);
-        }
       } else {
-        this.element.insertBefore(item, exist);
+        console.log("append");
+        this.element.appendChild(item);
       }
     });
 
-    prev.forEach((element) => {
-      element.remove();
+    prev.forEach((item) => {
+      item.remove();
     });
   }
 }
@@ -63,19 +61,21 @@ export class RepaintableComponent extends Component {
 export class IntersectionComponent extends Component {
   constructor(callback) {
     super(`
-      <div class="intersection"></div>  
+      <div class="intersection"></div>
     `);
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            console.log("intersection");
             callback();
           }
         });
       },
       {
-        threshold: 0,
+        root: document.querySelector(".music-list"),
+        threshold: 0.1,
       }
     );
 

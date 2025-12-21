@@ -50,7 +50,6 @@ body {
 
 .music-list {
   flex: 1;
-  overflow-y: auto;
   list-style: none;
 }
 
@@ -259,6 +258,13 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.music-container {
+  flex-direction: column;
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .controller__volume-slider {

@@ -13,15 +13,15 @@ class Main {
 
   rendering() {
     const root = document.getElementById("root");
-    const mainContentRoot = document.getElementById("main-root");
+    const musicContentRoot = document.getElementById("music-container");
 
     const listComponent = new MusicListComponent(MusicItemComponent);
     const intersection = new IntersectionComponent(() => {
       musicStore.fetch();
     });
 
-    listComponent.attachTo(mainContentRoot);
-    listComponent.addChildren([intersection]);
+    listComponent.attachTo(musicContentRoot);
+    intersection.attachTo(musicContentRoot);
 
     const controllerComponent = new ControllerComponent();
     controllerComponent.attachTo(root);

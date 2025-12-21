@@ -127,12 +127,14 @@ export class ControllerComponent extends Component {
         timelineSliderElement.max = duration;
       });
 
+      // TODO 컴포넌트화
       timelineSliderElement.onclick = (event) => {
         event.stopPropagation();
       };
 
-      timelineSliderElement.oninput = () => {
+      timelineSliderElement.oninput = (e) => {
         audio.timeline.startJump();
+        audio.timeline.time = Number(e.target.value);
       };
 
       timelineSliderElement.onchange = (event) => {
@@ -160,6 +162,7 @@ export class ControllerComponent extends Component {
         }
       });
 
+      // TODO: 컴포넌트화
       controlButton.onclick = (event) => {
         event.stopPropagation();
         if (audio.player.isPlaying) {

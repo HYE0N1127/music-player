@@ -17,7 +17,7 @@ export class Timeline {
     return this.#time;
   }
 
-  #setTime(value) {
+  set time(value) {
     this.#time = value;
     this.#timeListener.forEach((listener) => listener(this.#time));
   }
@@ -32,7 +32,7 @@ export class Timeline {
   }
 
   jumpTo(time) {
-    this.#setTime(time);
+    this.time = time;
     this.#isJumping = false;
   }
 
@@ -44,7 +44,7 @@ export class Timeline {
         return;
       }
 
-      this.#setTime(this.#element.currentTime);
+      this.time = this.#element.currentTime;
     };
   }
 
